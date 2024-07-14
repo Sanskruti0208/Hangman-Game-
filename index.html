@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .hangman-image {
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
+        .word-display {
+            margin: 20px 0;
+            font-size: 24px;
+        }
+        .letters {
+            margin-top: 20px;
+        }
+        .letter-button {
+            display: inline-block;
+            margin: 5px;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background-color: lightgray;
+            cursor: pointer;
+        }
+        .letter-button:hover {
+            background-color: gray;
+            color: white;
+        }
+        .end-message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hangman Game</h1>
+
+    <div id="game-container">
+        <img id="hangman-image" class="hangman-image" src="hangman6.jpg" alt="Hangman">
+        <div id="word-display" class="word-display"></div>
+        <div id="letters" class="letters"></div>
+        <div id="end-message" class="end-message"></div>
+    </div>
+
+    <script>
+        // Define game variables
+        const words = ['banana', 'apple', 'orange', 'grape', 'pineapple']; // Replace with your words from "words.txt"
+        let chosenWord = '';
+        let display = [];
+        let guessedLetters = [];
+        let lives = 6;
+
+        // Initialize game
+        function initializeGame() {
+            chosenWord = words[Math.floor(Math.random() * words.length)];
+            display = Array(chosenWord.length).fill('_');
+            guessedLetters = [];
+            lives = 6;
+            updateDisplay();
+            updateHangmanImage();
+            createLetterButtons();
+            document.getElementById('end-message').textContent = '';
+        }
+
+        // Update word display
+        function updateDisplay() {
+            document.getElementById('word-display').textContent = display.join(' ');
+        }
+
+        // Update hangman image based on lives left
+        function updateHangmanImage() {
+            document.getElementById('hangman-image').src = `hangman${6 - lives}.jpg`; // Adjust image names accordingly
+        }
+
+        // Create letter buttons
+        function createLetterButtons() {
+            const lettersContainer = document.getElementById('letters');
+            lettersContainer.innerHTML = '';
+            for (let letter of 'abcdefghijklmnopqrstuvwxyz') {
+                const button = document.createElement('button');
+                button.textContent = letter.toUpperCase();
+                button.className = 'letter-button';
+                button.onclick = () => {
+                    if (!guessedLetters.includes(letter)) {
+                        guessedLetters.push(letter);
+                        if (chosenWord.includes(letter)) {
+                            for (let i = 0; i < chosenWord.length; i++) {
+                                if (chosenWord[i] === letter) {
+                                    display[i] = letter;
+                                }
+                            }
+                        } else {
+                            lives--;
+                        }
+                        updateDisplay();
+                        updateHangmanImage();
+                        checkEndGame();
+                    }
+                };
+                lettersContainer.appendChild(button);
+            }
+        }
+
+        // Check if game ends
+        function checkEndGame() {
+            if (display.join('') === chosenWord) {
+                document.getElementById('end-message').textContent = 'Congratulations! You win!';
+                setTimeout(() => {
+                    initializeGame();
+                }, 2000);
+            } else if (lives === 0) {
+                document.getElementById('end-message').textContent = `You lose. The word was '${chosenWord}'.`;
+                setTimeout(() => {
+                    initializeGame();
+                }, 2000);
+            }
+        }
+
+        // Initialize game on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGame();
+        });
+    </script>
+</body>
+</html>
